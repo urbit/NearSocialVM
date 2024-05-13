@@ -1491,7 +1491,7 @@ export default class VM {
       widgetConfigs.findLast((config) => config && config.networkId)
         ?.networkId || near.config.networkId
 
-    this.UrbitApi = new Urbit('', '', 'near-gateways')
+    this.UrbitApi = new Urbit('')
     this.UrbitApi.ship
 
     this.globalFunctions = this.initGlobalFunctions()
@@ -1858,33 +1858,32 @@ export default class VM {
           return ship
         }
       },
-      pokeUrbit: (app, mark, json) => {
+      pokeUrbit: (app, mark, json, onSuccess, onError) => {
         return new Promise((resolve, reject) => {
           if (!this.UrbitApi) {
             reject(new Error('Urbit HTTP API not properly initialized'))
             return
           }
 
-          // this code won't work unless app with vm is globbed onto a ship
-          // if (!window.ship) {
-          //   reject(new Error("No Urbit server connected"));
-          //   return;
+          // if (!window.ship || !this.UrbitApi.ship) {
+          //   reject(new Error('No Urbit server connected'))
+          //   return
           // }
 
-          // placeholder
-          if (!this.UrbitApi.ship) {
-            reject(new Error('No Urbit server connected'))
-            return
+          function defaultOnSuccess(response) {
+            resolve(response)
+          }
+
+          function defaultOnError(err) {
+            reject(new Error(`Error in Urbit.pokeUrbit(): ${err}`))
           }
 
           this.UrbitApi.poke({
             app: app,
             mark: mark,
             json: json,
-            onSuccess: (response) => resolve(response),
-            onError: (err) => {
-              reject(new Error('Error in Urbit.pokeUrbit(): ' + err))
-            }
+            onSuccess: onSuccess || defaultOnSuccess,
+            onError: onError || defaultOnError
           })
         })
       },
