@@ -1492,7 +1492,12 @@ export default class VM {
         ?.networkId || near.config.networkId
 
     this.UrbitApi = new Urbit('')
-    this.UrbitApi.ship
+
+    if (!window.ship) {
+      this.UrbitApi.ship = process.env.REACT_APP_SHIP
+      this.UrbitApi.url = process.env.REACT_APP_HOST
+      this.UrbitApi.code = process.env.REACT_APP_CODE
+    }
 
     this.globalFunctions = this.initGlobalFunctions()
   }
@@ -1834,30 +1839,6 @@ export default class VM {
     }
 
     const Urbit = {
-      setTestApi: (host, code) => {
-        this.UrbitApi.url = host
-        this.UrbitApi.code = code
-        return
-      },
-      ship: (ship) => {
-        if (ship === '') {
-          const getShip = async () => {
-            const nameResp = await fetch(`${window.location.origin}/~/name`, {
-              method: 'get',
-              credentials: 'include'
-            })
-            const getStream = await nameResp.text()
-            return getStream.substring(1)
-          }
-          getShip().then((value) => {
-            this.UrbitApi.ship = value
-            return
-          })
-        } else {
-          this.UrbitApi.ship = ship
-          return ship
-        }
-      },
       pokeUrbit: (app, mark, json, onSuccess, onError) => {
         return new Promise((resolve, reject) => {
           if (!this.UrbitApi) {
