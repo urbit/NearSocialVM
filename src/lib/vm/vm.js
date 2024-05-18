@@ -1493,12 +1493,6 @@ export default class VM {
 
     this.UrbitApi = new Urbit('')
 
-    if (!window.ship) {
-      this.UrbitApi.ship = process.env.REACT_APP_SHIP
-      this.UrbitApi.url = process.env.REACT_APP_HOST
-      this.UrbitApi.code = process.env.REACT_APP_CODE
-    }
-
     this.globalFunctions = this.initGlobalFunctions()
   }
 
@@ -1839,72 +1833,83 @@ export default class VM {
     }
 
     const Urbit = {
-      pokeUrbit: (app, mark, json, onSuccess, onError) => {
+      setApi: (api) => {
+        this.UrbitApi.ship = api.ship
+        this.UrbitApi.url = api?.url ?? ''
+        this.UrbitApi.code = api?.code ?? ''
+      },
+      poke: (app, mark, json, onSuccess, onError) => {
         return new Promise((resolve, reject) => {
           if (!this.UrbitApi) {
             reject(new Error('Urbit HTTP API not properly initialized'))
             return
           }
 
-          // if (!window.ship || !this.UrbitApi.ship) {
-          //   reject(new Error('No Urbit server connected'))
-          //   return
-          // }
+          if (!this.UrbitApi.ship) {
+            reject(new Error('No Urbit server connected'))
+            return
+          }
 
           function defaultOnSuccess(response) {
             resolve(response)
           }
 
           function defaultOnError(err) {
-            reject(new Error(`Error in Urbit.pokeUrbit(): ${err}`))
+            reject(new Error('Error in Urbit.poke(): ', err))
           }
 
           this.UrbitApi.poke({
             app: app,
             mark: mark,
             json: json,
-            onSuccess: onSuccess || defaultOnSuccess,
-            onError: onError || defaultOnError
+            onSuccess: onSuccess ?? defaultOnSuccess,
+            onError: onError ?? defaultOnError
           })
         })
       },
-      pokeNearHandler: (json) => {
-        console.log('Attempting pokeNearHandler')
-        // TODO: error
-        // gall: poke-as cast fail :near-handler [a=%json b=%near-handler-action]
-        return Urbit.pokeUrbit('near-handler', 'near-handler-action', {
-          poke: json
-        })
-      },
-      scryUrbit: (app, path) => {
+      scry: (app, path) => {
         return new Promise((resolve, reject) => {
           if (!this.UrbitApi) {
             reject(new Error('Urbit HTTP API not properly initialized'))
             return
           }
 
-          // TODO: check window.ship is not null/undefined
+          if (!this.UrbitApi.ship) {
+            reject(new Error('No Urbit server connected'))
+            return
+          }
 
           this.UrbitApi.scry({ app: app, path: path })
             .then((response) => {
               resolve(response)
             })
             .catch((err) => {
-              reject(new Error('Error in Urbit.scryUrbit(): ' + err))
+              reject(new Error('Error in Urbit.scry(): ', err))
             })
         })
       },
-      scryNearHandler: (path) => {
-        return new Promise((resolve, reject) => {
-          Urbit.scryUrbit('near-handler', path)
-            .then((response) => {
-              resolve(response)
-            })
-            .catch((err) => {
-              reject(new Error('Error in Urbit.scryNearHandler(): ' + err))
-            })
-        })
-      }
+      // subscribe: (app, path, ship, err, event, quit) => {
+      //   function defaultErr(err) {
+      //     console.error('Urbit.subscribe() failed with error:', err)
+      //   }
+
+      //   function defaultEvent(event) {
+      //     console.log(`Urbit.subscribe() received event ${JSON.stringify(event, null, 2)}`)
+      //   }
+
+      //   function defaultQuit() {
+      //     console.warn(`Kicked from subscription to ${path} in ~${ship}'s %${app}`)
+      //   }
+
+      //   this.UrbitApi.subscribe({
+      //     app: app,
+      //     path: path,
+      //     ship: ship ?? this.UrbitApi.ship,
+      //     err: err ?? defaultErr,
+      //     event: event ?? defaultEvent,
+      //     quit: quit ?? defaultQuit
+      //   })
+      // }
     }
 
     return deepFreeze({
