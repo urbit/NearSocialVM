@@ -1,14 +1,15 @@
-const webpack = require('webpack')
-const paths = require('./config/paths')
-const path = require('path')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const { merge } = require('webpack-merge')
-const loadPreset = require('./config/presets/loadPreset')
-const loadConfig = (mode) => require(`./config/webpack.${mode}.js`)(mode)
-const nodeExternals = require('webpack-node-externals')
+const webpack = require('webpack');
+const paths = require('./config/paths');
+const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { merge } = require('webpack-merge');
+const loadPreset = require('./config/presets/loadPreset');
+const loadConfig = (mode) => require(`./config/webpack.${mode}.js`)(mode);
+const nodeExternals = require('webpack-node-externals');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = function (env) {
-  const { mode = 'production' } = env || {}
+  const { mode = 'production' } = env || {};
   return merge(
     {
       mode,
@@ -70,10 +71,9 @@ module.exports = function (env) {
       },
       target: 'node',
       plugins: [
-        // new webpack.EnvironmentPlugin({
-        //   // Configure environment variables here.
-        //   ENVIRONMENT: "browser",
-        // }),
+        new Dotenv({
+          path: path.resolve(__dirname, '.env'),
+        }),
         new CleanWebpackPlugin(),
         new webpack.ProgressPlugin(),
         new webpack.ProvidePlugin({
@@ -84,5 +84,5 @@ module.exports = function (env) {
     },
     loadConfig(mode),
     loadPreset(env)
-  )
-}
+  );
+};
