@@ -17,7 +17,7 @@ module.exports = function (env) {
       output: {
         path: paths.distPath,
         filename: 'index.js',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
       },
       externals: [
         nodeExternals(),
@@ -26,48 +26,51 @@ module.exports = function (env) {
             commonjs: 'react',
             commonjs2: 'react',
             amd: 'react',
-            root: 'React'
+            root: 'React',
           },
           'react-dom': {
             commonjs: 'react-dom',
             commonjs2: 'react-dom',
             amd: 'react-dom',
-            root: 'ReactDOM'
-          }
-        }
+            root: 'ReactDOM',
+          },
+        },
       ],
       module: {
         rules: [
           {
             test: /\.m?js/,
             resolve: {
-              fullySpecified: false
-            }
+              fullySpecified: false,
+            },
           },
           {
             test: /\.(js|jsx)$/,
             use: {
               loader: 'babel-loader',
               options: {
-                presets: ['@babel/preset-env', '@babel/preset-react']
-              }
+                presets: ['@babel/preset-env', '@babel/preset-react'],
+              },
             },
-            exclude: path.resolve(__dirname, 'node_modules')
+            exclude: path.resolve(__dirname, 'node_modules'),
           },
           // Images: Copy image files to build folder
           { test: /\.(?:ico|gif|png|jpg|jpeg)$/i, type: 'asset/resource' },
 
           // Fonts and SVGs: Inline files
-          { test: /\.(woff(2)?|eot|ttf|otf|svg|)$/, type: 'asset/inline' }
-        ]
+          { test: /\.(woff(2)?|eot|ttf|otf|svg|)$/, type: 'asset/inline' },
+        ],
       },
       resolve: {
         modules: [paths.srcPath, 'node_modules'],
         extensions: ['.js', '.jsx', '.json'],
+        alias: {
+          'near-social-vm': path.resolve(__dirname, 'src/index.js'),
+        },
         fallback: {
           crypto: require.resolve('crypto-browserify'),
-          stream: require.resolve('stream-browserify')
-        }
+          stream: require.resolve('stream-browserify'),
+        },
       },
       target: 'node',
       plugins: [
@@ -78,9 +81,9 @@ module.exports = function (env) {
         new webpack.ProgressPlugin(),
         new webpack.ProvidePlugin({
           process: 'process/browser',
-          Buffer: [require.resolve('buffer/'), 'Buffer']
-        })
-      ]
+          Buffer: [require.resolve('buffer/'), 'Buffer'],
+        }),
+      ],
     },
     loadConfig(mode),
     loadPreset(env)
