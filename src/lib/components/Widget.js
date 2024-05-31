@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import { useNear } from '../data/near'
 import ConfirmTransactions from './ConfirmTransactions'
-import VM from 'near-social-vm'
+import VM from '../../lib/vm/vm.js'
 import {
   deepCopy,
   deepEqual,
